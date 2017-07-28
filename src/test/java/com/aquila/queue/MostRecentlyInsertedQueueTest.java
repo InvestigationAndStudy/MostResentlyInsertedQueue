@@ -65,9 +65,11 @@ public class MostRecentlyInsertedQueueTest {
         Queue<String> queue = new ConcurrentMostRecentlyInsertedQueue<String>(10);
 
         IntStream.range(0, 100).parallel().forEach(i -> {
+            System.out.println("Queue insertion: a count: " + i);
             queue.add("a");
         });
         IntStream.range(0, 5).parallel().forEach(i -> {
+            System.out.println("Queue removing: count: " + i);
             queue.poll();
         });
         Assert.assertEquals(
