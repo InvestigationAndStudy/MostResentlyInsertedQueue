@@ -13,58 +13,80 @@ public class MostRecentlyInsertedQueue<T> implements Queue<T> {
 
 
     @Override
-    public synchronized int size() {
-        return this.queuelist.size();
+    public int size() {
+        synchronized (this.queuelist) {
+            return this.queuelist.size();
+        }
     }
 
     @Override
-    public synchronized boolean isEmpty() {
-        return this.queuelist.isEmpty();
+    public boolean isEmpty() {
+        synchronized (this.queuelist) {
+            return this.queuelist.isEmpty();
+        }
     }
 
     @Override
     public boolean contains(Object o) {
-        return false;
+        synchronized (this.queuelist) {
+            return this.queuelist.contains(o);
+        }
     }
 
     @Override
-    public synchronized Iterator<T> iterator() {
-        return this.queuelist.iterator();
+    public Iterator<T> iterator() {
+        synchronized (this.queuelist) {
+            return this.queuelist.iterator();
+        }
     }
 
     @Override
-    public synchronized Object[] toArray() {
-        return this.queuelist.toArray();
+    public Object[] toArray() {
+        synchronized (this.queuelist) {
+            return this.queuelist.toArray();
+        }
     }
 
     @Override
-    public synchronized <T1> T1[] toArray(T1[] a) {
-        return this.queuelist.toArray(a);
+    public <T1> T1[] toArray(T1[] a) {
+        synchronized (this.queuelist) {
+            return this.queuelist.toArray(a);
+        }
     }
 
     @Override
     public boolean remove(Object o) {
-        return false;
+        synchronized (this.queuelist) {
+            return this.queuelist.remove(o);
+        }
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return false;
+        synchronized (this.queuelist) {
+            return this.queuelist.containsAll(c);
+        }
     }
 
     @Override
     public boolean addAll(Collection<? extends T> c) {
-        return false;
+        synchronized (this.queuelist) {
+            return this.queuelist.addAll(c);
+        }
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return false;
+        synchronized (this.queuelist) {
+            return this.queuelist.removeAll(c);
+        }
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return false;
+        synchronized (this.queuelist) {
+            return this.queuelist.retainAll(c);
+        }
     }
 
     @Override
@@ -88,7 +110,7 @@ public class MostRecentlyInsertedQueue<T> implements Queue<T> {
                 throw new IllegalStateException("Queue size more than expected.");
             }
             if (this.queuelist.size() == this.MAX_CAPACITY) {
-                this.queuelist.remove(this.MAX_CAPACITY - 1);
+                this.queuelist.remove(0);
                 this.queuelist.add(t);
             } else {
                 this.queuelist.add(t);
