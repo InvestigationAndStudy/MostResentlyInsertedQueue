@@ -17,44 +17,56 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
 
     @Override
     public int size() {
-        synchronized (this.queuelist) {
-            return this.queuelist.size();
-        }
+        lock.lock();
+        int s;
+        s = this.queuelist.size();
+        lock.unlock();
+        return s;
     }
 
     @Override
     public boolean isEmpty() {
-        synchronized (this.queuelist) {
-            return this.queuelist.isEmpty();
-        }
+        lock.lock();
+        boolean b;
+        b = this.queuelist.isEmpty();
+        lock.unlock();
+        return b;
     }
 
     @Override
     public boolean contains(Object o) {
-        synchronized (this.queuelist) {
-            return this.queuelist.contains(o);
-        }
+        lock.lock();
+        boolean b;
+        b = this.queuelist.contains(o);
+        lock.unlock();
+        return b;
     }
 
     @Override
     public Iterator<T> iterator() {
-        synchronized (this.queuelist) {
-            return this.queuelist.iterator();
-        }
+        lock.lock();
+        Iterator<T> i;
+        i = this.queuelist.iterator();
+        lock.unlock();
+        return i;
     }
 
     @Override
     public Object[] toArray() {
-        synchronized (this.queuelist) {
-            return this.queuelist.toArray();
-        }
+        lock.lock();
+        Object[] o;
+        o = this.queuelist.toArray();
+        lock.unlock();
+        return o;
     }
 
     @Override
     public <T1> T1[] toArray(T1[] a) {
-        synchronized (this.queuelist) {
-            return this.queuelist.toArray(a);
-        }
+        lock.lock();
+        T1[] t;
+        t = this.queuelist.toArray(a);
+        lock.unlock();
+        return t;
     }
 
     @Override
@@ -66,30 +78,38 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        synchronized (this.queuelist) {
-            return this.queuelist.containsAll(c);
-        }
+        lock.lock();
+        boolean b;
+        b = this.queuelist.containsAll(c);
+        lock.unlock();
+        return b;
     }
 
     @Override
     public boolean addAll(Collection<? extends T> c) {
-        synchronized (this.queuelist) {
-            return this.queuelist.addAll(c);
-        }
+        lock.lock();
+        boolean b;
+        b = this.queuelist.addAll(c);
+        lock.unlock();
+        return b;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        synchronized (this.queuelist) {
-            return this.queuelist.removeAll(c);
-        }
+        lock.lock();
+        boolean b;
+        b = this.queuelist.removeAll(c);
+        lock.unlock();
+        return b;
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        synchronized (this.queuelist) {
-            return this.queuelist.retainAll(c);
-        }
+        lock.lock();
+        boolean b;
+        b = this.queuelist.retainAll(c);
+        lock.unlock();
+        return b;
     }
 
     @Override
