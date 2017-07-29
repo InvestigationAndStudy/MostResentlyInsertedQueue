@@ -8,55 +8,50 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by venya on 29.07.17.
  */
-public class MostRecentlyInsertedBlockingQueue implements BlockingQueue {
+public class MostRecentlyInsertedBlockingQueue<T>  extends ConcurrentMostRecentlyInsertedQueue<T> implements BlockingQueue<T> {
+
+    public MostRecentlyInsertedBlockingQueue(int capacity) {
+        super(capacity);
+    }
+
+
+    /**
+     * Inserts the specified element into this queue, waiting if necessary for space to become available.
+     * @param t
+     * @throws InterruptedException
+     */
     @Override
-    public boolean add(Object o) {
-        return false;
+    public void put(T t) throws InterruptedException {
+        this.add(t);
+    }
+
+    /**
+     * Inserts the specified element into this queue, waiting up to the specified wait time if necessary for space
+     * to become available.
+     * @param t
+     * @param timeout
+     * @param unit
+     * @return
+     * @throws InterruptedException
+     */
+    @Override
+    public boolean offer(T t, long timeout, TimeUnit unit) throws InterruptedException {
+        return this.add(t);
+    }
+
+    /**
+     * Retrieves and removes the head of this queue, waiting if necessary until an element becomes available.
+     * @return
+     * @throws InterruptedException
+     */
+    @Override
+    public T take() throws InterruptedException {
+        return this.remove();
     }
 
     @Override
-    public boolean offer(Object o) {
-        return false;
-    }
-
-    @Override
-    public Object remove() {
-        return null;
-    }
-
-    @Override
-    public Object poll() {
-        return null;
-    }
-
-    @Override
-    public Object element() {
-        return null;
-    }
-
-    @Override
-    public Object peek() {
-        return null;
-    }
-
-    @Override
-    public void put(Object o) throws InterruptedException {
-
-    }
-
-    @Override
-    public boolean offer(Object o, long timeout, TimeUnit unit) throws InterruptedException {
-        return false;
-    }
-
-    @Override
-    public Object take() throws InterruptedException {
-        return null;
-    }
-
-    @Override
-    public Object poll(long timeout, TimeUnit unit) throws InterruptedException {
-        return null;
+    public T poll(long timeout, TimeUnit unit) throws InterruptedException {
+        return this.poll();
     }
 
     @Override
@@ -65,72 +60,12 @@ public class MostRecentlyInsertedBlockingQueue implements BlockingQueue {
     }
 
     @Override
-    public boolean remove(Object o) {
-        return false;
-    }
-
-    @Override
-    public boolean addAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public void clear() {
-
-    }
-
-    @Override
-    public boolean retainAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public boolean removeAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public boolean containsAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public int size() {
+    public int drainTo(Collection<? super T> c) {
         return 0;
     }
 
     @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
-    @Override
-    public boolean contains(Object o) {
-        return false;
-    }
-
-    @Override
-    public Iterator iterator() {
-        return null;
-    }
-
-    @Override
-    public Object[] toArray() {
-        return new Object[0];
-    }
-
-    @Override
-    public Object[] toArray(Object[] a) {
-        return new Object[0];
-    }
-
-    @Override
-    public int drainTo(Collection c) {
-        return 0;
-    }
-
-    @Override
-    public int drainTo(Collection c, int maxElements) {
+    public int drainTo(Collection<? super T> c, int maxElements) {
         return 0;
     }
 }
