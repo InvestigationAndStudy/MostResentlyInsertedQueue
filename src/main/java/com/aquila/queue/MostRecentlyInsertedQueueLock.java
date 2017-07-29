@@ -19,8 +19,11 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
     public int size() {
         lock.lock();
         int s;
-        s = this.queuelist.size();
-        lock.unlock();
+        try {
+            s = this.queuelist.size();
+        } finally {
+            lock.unlock();
+        }
         return s;
     }
 
@@ -28,8 +31,11 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
     public boolean isEmpty() {
         lock.lock();
         boolean b;
-        b = this.queuelist.isEmpty();
-        lock.unlock();
+        try {
+            b = this.queuelist.isEmpty();
+        } finally {
+            lock.unlock();
+        }
         return b;
     }
 
@@ -37,8 +43,11 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
     public boolean contains(Object o) {
         lock.lock();
         boolean b;
-        b = this.queuelist.contains(o);
-        lock.unlock();
+        try {
+            b = this.queuelist.contains(o);
+        } finally {
+            lock.unlock();
+        }
         return b;
     }
 
@@ -46,8 +55,11 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
     public Iterator<T> iterator() {
         lock.lock();
         Iterator<T> i;
-        i = this.queuelist.iterator();
-        lock.unlock();
+        try {
+            i = this.queuelist.iterator();
+        } finally {
+            lock.unlock();
+        }
         return i;
     }
 
@@ -55,8 +67,11 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
     public Object[] toArray() {
         lock.lock();
         Object[] o;
-        o = this.queuelist.toArray();
-        lock.unlock();
+        try {
+            o = this.queuelist.toArray();
+        } finally {
+            lock.unlock();
+        }
         return o;
     }
 
@@ -64,24 +79,35 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
     public <T1> T1[] toArray(T1[] a) {
         lock.lock();
         T1[] t;
-        t = this.queuelist.toArray(a);
-        lock.unlock();
+        try {
+            t = this.queuelist.toArray(a);
+        } finally {
+            lock.unlock();
+        }
         return t;
     }
 
     @Override
     public boolean remove(Object o) {
-        synchronized (this.queuelist) {
-            return this.queuelist.remove(o);
+        lock.lock();
+        boolean b;
+        try {
+            b = this.queuelist.remove(o);
+        } finally {
+            lock.unlock();
         }
+        return b;
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
         lock.lock();
         boolean b;
-        b = this.queuelist.containsAll(c);
-        lock.unlock();
+        try {
+            b = this.queuelist.containsAll(c);
+        } finally {
+            lock.unlock();
+        }
         return b;
     }
 
@@ -89,8 +115,11 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
     public boolean addAll(Collection<? extends T> c) {
         lock.lock();
         boolean b;
-        b = this.queuelist.addAll(c);
-        lock.unlock();
+        try {
+            b = this.queuelist.addAll(c);
+        } finally {
+            lock.unlock();
+        }
         return b;
     }
 
@@ -98,8 +127,11 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
     public boolean removeAll(Collection<?> c) {
         lock.lock();
         boolean b;
-        b = this.queuelist.removeAll(c);
-        lock.unlock();
+        try {
+            b = this.queuelist.removeAll(c);
+        } finally {
+            lock.unlock();
+        }
         return b;
     }
 
@@ -107,16 +139,22 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
     public boolean retainAll(Collection<?> c) {
         lock.lock();
         boolean b;
-        b = this.queuelist.retainAll(c);
-        lock.unlock();
+        try {
+            b = this.queuelist.retainAll(c);
+        } finally {
+            lock.unlock();
+        }
         return b;
     }
 
     @Override
     public void clear() {
         lock.lock();
-        this.queuelist.clear();
-        lock.unlock();
+        try {
+            this.queuelist.clear();
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -129,17 +167,19 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
     @Override
     public boolean add(T t) throws IllegalStateException {
         lock.lock();
-        if (this.queuelist.size() > this.MAX_CAPACITY) {
-            throw new IllegalStateException("Queue size more than expected.");
+        try {
+            if (this.queuelist.size() > this.MAX_CAPACITY) {
+                throw new IllegalStateException("Queue size more than expected.");
+            }
+            if (this.queuelist.size() == this.MAX_CAPACITY) {
+                this.queuelist.remove(0);
+                this.queuelist.add(t);
+            } else {
+                this.queuelist.add(t);
+            }
+        } finally {
+            lock.unlock();
         }
-        if (this.queuelist.size() == this.MAX_CAPACITY) {
-            this.queuelist.remove(0);
-            this.queuelist.add(t);
-        } else {
-            this.queuelist.add(t);
-        }
-
-        lock.unlock();
         return true;
     }
 
@@ -169,12 +209,15 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
     public T remove() throws IllegalStateException {
         lock.lock();
         T t;
-        if (this.queuelist.isEmpty()) {
-            throw new IllegalStateException("Queue is empty");
-        } else {
-            t = this.queuelist.remove(0);
+        try {
+            if (this.queuelist.isEmpty()) {
+                throw new IllegalStateException("Queue is empty");
+            } else {
+                t = this.queuelist.remove(0);
+            }
+        } finally {
+            lock.unlock();
         }
-        lock.unlock();
         return t;
     }
 
@@ -196,12 +239,15 @@ public class MostRecentlyInsertedQueueLock<T> implements Queue<T> {
     public T element() {
         lock.lock();
         T t;
-        if (this.queuelist.isEmpty()) {
-            throw new IllegalStateException("Queue is empty");
-        } else {
-            t = this.queuelist.get(0);
+        try {
+            if (this.queuelist.isEmpty()) {
+                throw new IllegalStateException("Queue is empty");
+            } else {
+                t = this.queuelist.get(0);
+            }
+        } finally {
+            lock.unlock();
         }
-        lock.unlock();
         return t;
     }
 
