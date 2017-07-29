@@ -78,6 +78,57 @@ public class MostRecentlyInsertedQueueTest {
         );
     }
 
+    @Test
+    public void testMostRecentlyInsertedQueueLock() {
+        Queue<Integer> queue = new MostRecentlyInsertedQueueLock<Integer>(3);
+        Assert.assertEquals(
+            this.inspect(queue),
+            "queue.size(): 0, contents (head -> tail): [  ]"
+        );
+        queue.offer(1);
+        Assert.assertEquals(
+            this.inspect(queue),
+            "queue.size(): 1, contents (head -> tail): [ 1 ]"
+        );
+        queue.offer(2);
+        Assert.assertEquals(
+            this.inspect(queue),
+            "queue.size(): 2, contents (head -> tail): [ 1, 2 ]"
+        );
+        queue.offer(3);
+        Assert.assertEquals(
+            this.inspect(queue),
+            "queue.size(): 3, contents (head -> tail): [ 1, 2, 3 ]"
+        );
+        queue.offer(4);
+        Assert.assertEquals(
+            this.inspect(queue),
+            "queue.size(): 3, contents (head -> tail): [ 2, 3, 4 ]"
+        );
+        queue.offer(5);
+        Assert.assertEquals(
+            this.inspect(queue),
+            "queue.size(): 3, contents (head -> tail): [ 3, 4, 5 ]"
+        );
+        Integer poll1 = queue.poll();
+        Assert.assertEquals(
+            this.inspect(queue).concat(", poll1 = ").concat(poll1.toString()),
+            "queue.size(): 2, contents (head -> tail): [ 4, 5 ], poll1 = 3"
+        );
+        Integer poll2 = queue.poll();
+        Assert.assertEquals(
+            this.inspect(queue).concat(", poll2 = ").concat(poll2.toString()),
+            "queue.size(): 1, contents (head -> tail): [ 5 ], poll2 = 4"
+        );
+        queue.clear();
+        Assert.assertEquals(
+            this.inspect(queue),
+            "queue.size(): 0, contents (head -> tail): [  ]"
+        );
+
+    }
+
+
     private String inspect(final Queue<?> queue) {
         return String.format(
             "queue.size(): %s, contents (head -> tail): [ %s ]",
