@@ -1,57 +1,58 @@
 package com.aquila.queue;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.*;
 
-/**
- * Created by venya on 29.07.17.
- */
-public class MostRecentlyInsertedBlockingQueue<T>  extends ConcurrentMostRecentlyInsertedQueue<T> implements BlockingQueue<T> {
+
+public class MostRecentlyInsertedBlockingQueue<T> extends java.util.AbstractQueue<T> implements BlockingQueue<T> {
+    private final ReentrantLock lock;
+    private final Condition notEmpty;
+    private final Condition notFull;
+    private final List<T> queuelist;
+    private final int MAX_CAPACITY;
 
     public MostRecentlyInsertedBlockingQueue(int capacity) {
-        super(capacity);
+        this.MAX_CAPACITY = capacity;
+        this.queuelist = new ArrayList<T>(this.MAX_CAPACITY);
+        this.lock = new ReentrantLock();
+        this.notEmpty = lock.newCondition();
+        this.notFull =  lock.newCondition();
     }
 
 
-    /**
-     * Inserts the specified element into this queue, waiting if necessary for space to become available.
-     * @param t
-     * @throws InterruptedException
-     */
+    @Override
+    public Iterator<T> iterator() {
+        return null;
+    }
+
+    @Override
+    public int size() {
+        return 0;
+    }
+
     @Override
     public void put(T t) throws InterruptedException {
-        this.add(t);
+
     }
 
-    /**
-     * Inserts the specified element into this queue, waiting up to the specified wait time if necessary for space
-     * to become available.
-     * @param t
-     * @param timeout
-     * @param unit
-     * @return
-     * @throws InterruptedException
-     */
     @Override
     public boolean offer(T t, long timeout, TimeUnit unit) throws InterruptedException {
-        return this.add(t);
+        return false;
     }
 
-    /**
-     * Retrieves and removes the head of this queue, waiting if necessary until an element becomes available.
-     * @return
-     * @throws InterruptedException
-     */
     @Override
     public T take() throws InterruptedException {
-        return this.remove();
+        return null;
     }
 
     @Override
     public T poll(long timeout, TimeUnit unit) throws InterruptedException {
-        return this.poll();
+        return null;
     }
 
     @Override
@@ -67,5 +68,20 @@ public class MostRecentlyInsertedBlockingQueue<T>  extends ConcurrentMostRecentl
     @Override
     public int drainTo(Collection<? super T> c, int maxElements) {
         return 0;
+    }
+
+    @Override
+    public boolean offer(T t) {
+        return false;
+    }
+
+    @Override
+    public T poll() {
+        return null;
+    }
+
+    @Override
+    public T peek() {
+        return null;
     }
 }
