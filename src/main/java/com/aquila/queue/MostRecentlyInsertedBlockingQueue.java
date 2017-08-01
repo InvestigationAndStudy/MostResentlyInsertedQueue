@@ -15,6 +15,7 @@ public class MostRecentlyInsertedBlockingQueue<T> extends java.util.AbstractQueu
     private final Condition notFull;
     private final List<T> queuelist;
     private final int MAX_CAPACITY;
+    private int queuecount;
 
     public MostRecentlyInsertedBlockingQueue(int capacity) {
         this.MAX_CAPACITY = capacity;
@@ -32,32 +33,78 @@ public class MostRecentlyInsertedBlockingQueue<T> extends java.util.AbstractQueu
 
     @Override
     public int size() {
-        return 0;
+        this.lock.lock();
+        try {
+            return this.queuecount;
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
     public void put(T t) throws InterruptedException {
-
+        this.lock.lockInterruptibly();
+        try {
+            while (this.queuecount == this.queuelist.size()) {
+                this.notFull.await();
+            }
+            this.insert(t);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
     public boolean offer(T t, long timeout, TimeUnit unit) throws InterruptedException {
-        return false;
-    }
-
-    @Override
-    public T take() throws InterruptedException {
-        return null;
+        long nanoseconds = unit.toNanos(timeout);
+        this.lock.lockInterruptibly();
+        try {
+            while (this.queuecount == this.queuelist.size()) {
+                notFull.awaitNanos(nanoseconds);
+            }
+            this.insert(t);
+            return true;
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
     public T poll(long timeout, TimeUnit unit) throws InterruptedException {
-        return null;
+        long nanoseconds = unit.toNanos(timeout);
+        this.lock.lockInterruptibly();
+        try {
+            while (this.queuecount == 0) {
+                notEmpty.awaitNanos(nanoseconds);
+            }
+            return extract();
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    @Override
+    public T take() throws InterruptedException {
+        this.lock.lockInterruptibly();
+        try {
+            while (this.queuecount == 0) {
+                this.notEmpty.await();
+            }
+            return this.extract();
+        } finally {
+            this.lock.unlock();
+        }
+
     }
 
     @Override
     public int remainingCapacity() {
-        return 0;
+        this.lock.lock();
+        try {
+            return this.queuelist.size();
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
@@ -72,7 +119,17 @@ public class MostRecentlyInsertedBlockingQueue<T> extends java.util.AbstractQueu
 
     @Override
     public boolean offer(T t) {
-        return false;
+        this.lock.lock();
+        try {
+            if (this.queuecount == this.queuelist.size()) {
+                return false;
+            } else {
+                this.insert(t);
+                return true;
+            }
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     @Override
@@ -83,5 +140,16 @@ public class MostRecentlyInsertedBlockingQueue<T> extends java.util.AbstractQueu
     @Override
     public T peek() {
         return null;
+    }
+
+    private void insert(T t) {
+        this.queuelist.add(t);
+        this.notEmpty.signal();
+    }
+
+    private T extract() {
+        T t = this.queuelist.remove(0);
+        this.notFull.signal();
+        return t;
     }
 }
