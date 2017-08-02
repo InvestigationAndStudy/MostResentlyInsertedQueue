@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -126,6 +127,58 @@ public class MostRecentlyInsertedQueueTest {
             "queue.size(): 0, contents (head -> tail): [  ]"
         );
 
+    }
+
+    @Test
+    public void testMostRecentlyInsertedBlockingQueueOfferPoll() {
+        BlockingQueue<Integer> bq = new MostRecentlyInsertedBlockingQueue<>(3);
+        Assert.assertEquals(bq.size(), 0);
+        bq.offer(1);
+        bq.offer(2);
+        bq.offer(3);
+        bq.offer(4);
+        Assert.assertEquals(bq.size(),3);
+        Assert.assertEquals((int)bq.poll(), 1);
+        Assert.assertEquals(bq.size(),2);
+        Assert.assertEquals((int)bq.poll(), 2);
+        Assert.assertEquals((int)bq.poll(), 3);
+        Assert.assertEquals(bq.size(),0);
+
+    }
+
+    @Test
+    public void testMostRecentlyInsertedBlockingQueuePutPoll() throws InterruptedException {
+        BlockingQueue<Integer> bq = new MostRecentlyInsertedBlockingQueue<>(3);
+        Assert.assertEquals(bq.size(), 0);
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    System.out.println("Before insert [1]");
+                    bq.put(1);
+                    System.out.println("Before insert [2]");
+                    bq.put(2);
+                    System.out.println("Before insert [3]");
+                    bq.put(3);
+                    System.out.println("Before insert [4]");
+                    bq.put(4);
+                    System.out.println("Inserted all");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+
+        Thread.sleep(1000);
+
+        Assert.assertEquals(bq.size(), 3);
+        Assert.assertEquals((int)bq.poll(), 1);
+        Thread.sleep(1000);
+        System.out.println(bq.toString());
+        Assert.assertEquals(bq.size(), 3);
+        Assert.assertEquals((int)bq.peek(), 2);
+        Assert.assertEquals((int)bq.peek(), 2);
+        Assert.assertEquals(bq.size(), 3);
     }
 
 

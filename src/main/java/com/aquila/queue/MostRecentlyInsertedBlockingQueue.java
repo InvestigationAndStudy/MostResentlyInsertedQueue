@@ -23,6 +23,7 @@ public class MostRecentlyInsertedBlockingQueue<T> extends java.util.AbstractQueu
         this.lock = new ReentrantLock();
         this.notEmpty = lock.newCondition();
         this.notFull =  lock.newCondition();
+        this.queuecount = 0;
     }
 
 
@@ -45,7 +46,7 @@ public class MostRecentlyInsertedBlockingQueue<T> extends java.util.AbstractQueu
     public void put(T t) throws InterruptedException {
         this.lock.lockInterruptibly();
         try {
-            while (this.queuecount == this.queuelist.size()) {
+            while (this.queuecount == this.MAX_CAPACITY) {
                 this.notFull.await();
             }
             this.insert(t);
@@ -59,11 +60,26 @@ public class MostRecentlyInsertedBlockingQueue<T> extends java.util.AbstractQueu
         long nanoseconds = unit.toNanos(timeout);
         this.lock.lockInterruptibly();
         try {
-            while (this.queuecount == this.queuelist.size()) {
+            while (this.queuecount == this.MAX_CAPACITY) {
                 notFull.awaitNanos(nanoseconds);
             }
             this.insert(t);
             return true;
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    @Override
+    public boolean offer(T t) {
+        this.lock.lock();
+        try {
+            if (this.queuecount == this.MAX_CAPACITY) {
+                return false;
+            } else {
+                this.insert(t);
+                return true;
+            }
         } finally {
             this.lock.unlock();
         }
@@ -77,7 +93,21 @@ public class MostRecentlyInsertedBlockingQueue<T> extends java.util.AbstractQueu
             while (this.queuecount == 0) {
                 notEmpty.awaitNanos(nanoseconds);
             }
-            return extract();
+            return rem();
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    @Override
+    public T poll() {
+        this.lock.lock();
+        try {
+            if (this.queuecount == 0) {
+                return null;
+            } else {
+                return this.rem();
+            }
         } finally {
             this.lock.unlock();
         }
@@ -90,7 +120,7 @@ public class MostRecentlyInsertedBlockingQueue<T> extends java.util.AbstractQueu
             while (this.queuecount == 0) {
                 this.notEmpty.await();
             }
-            return this.extract();
+            return this.rem();
         } finally {
             this.lock.unlock();
         }
@@ -107,25 +137,40 @@ public class MostRecentlyInsertedBlockingQueue<T> extends java.util.AbstractQueu
         }
     }
 
+    /**
+     * Not implemented
+     * @param c
+     * @return
+     */
     @Override
     public int drainTo(Collection<? super T> c) {
         return 0;
     }
 
+    /**
+     * Not implementd
+     * @param c
+     * @param maxElements
+     * @return
+     */
     @Override
     public int drainTo(Collection<? super T> c, int maxElements) {
         return 0;
     }
 
+
+    /**
+     * Retrieves, but does not remove, the head of this queue, or returns null if this queue is empty.
+     * @return
+     */
     @Override
-    public boolean offer(T t) {
+    public T peek() {
         this.lock.lock();
         try {
-            if (this.queuecount == this.queuelist.size()) {
-                return false;
+            if (this.queuecount == 0 ) {
+                return null;
             } else {
-                this.insert(t);
-                return true;
+                return this.get();
             }
         } finally {
             this.lock.unlock();
@@ -133,22 +178,25 @@ public class MostRecentlyInsertedBlockingQueue<T> extends java.util.AbstractQueu
     }
 
     @Override
-    public T poll() {
-        return null;
-    }
-
-    @Override
-    public T peek() {
-        return null;
+    public String toString(){
+        return this.queuelist.toString();
     }
 
     private void insert(T t) {
         this.queuelist.add(t);
+        ++this.queuecount;
         this.notEmpty.signal();
     }
 
-    private T extract() {
+    private T rem() {
         T t = this.queuelist.remove(0);
+        --this.queuecount;
+        this.notFull.signal();
+        return t;
+    }
+
+    private T get() {
+        T t = this.queuelist.get(0);
         this.notFull.signal();
         return t;
     }

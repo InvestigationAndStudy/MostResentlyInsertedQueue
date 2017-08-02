@@ -1,10 +1,15 @@
 # MostResentlyInsertedQueue
-Test implementation
-Start implementation
 
 
-http://docs.oracle.com/javase/tutorial/essential/concurrency/guardmeth.html
+**MostRecentlyInsertedQueue**  Imimplementation as first task but contains synchronization
 
-http://tutorials.jenkov.com/java-concurrency/blocking-queues.html
+**MostRecentlyInsertedQueueLock**  The same as previous implementation but used locks - it used for second task
 
-http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/7-b147/java/util/concurrent/ArrayBlockingQueue.java#ArrayBlockingQueue
+**MostRecentlyInsertedBlockingQueue** Implementation of the last task
+
+*Other class*  is a simple examples of reusing code
+
+**MostRecentlyInsertedQueueTest** Cover by test to show main goals of implementation
+
+
+
